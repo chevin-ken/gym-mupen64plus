@@ -1,5 +1,5 @@
 ################################################################
-FROM ubuntu:xenial-20170915 AS base
+FROM ubuntu:xenial-20200916 AS base
 
 
 # Setup environment variables in a single layer
@@ -39,11 +39,10 @@ RUN git clone https://github.com/mupen64plus/mupen64plus-core && \
 ################################################################
 FROM base
 
-
 # Update package cache and install dependencies
 RUN apt-get update && \
     apt-get install -y \
-        python python-pip python-setuptools python-dev \
+        libjson-c2 \
         wget \
         xvfb libxv1 x11vnc \
         imagemagick \
@@ -83,7 +82,7 @@ COPY [ "./gym_mupen64plus/envs/Smash/smash.sra", "/root/.local/share/mupen64plus
 
 # Install requirements & this package
 WORKDIR /src/gym-mupen64plus
-RUN pip install -e .
+RUN pip3 install -e .
 
 # Declare ROMs as a volume for mounting a host path outside the container
 VOLUME /src/gym-mupen64plus/gym_mupen64plus/ROMs/
