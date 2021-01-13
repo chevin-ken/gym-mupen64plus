@@ -42,3 +42,6 @@ class MarioKartDiscreteEnv(MarioKartEnv):
         controls = DiscreteActions.get_controls_from_action(action)
 
         return super(MarioKartDiscreteEnv, self).step(controls)
+
+    def get_action_meanings(self):
+        return [key for key, mapping in DiscreteActions.ACTION_MAP]
