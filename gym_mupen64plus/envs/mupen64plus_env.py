@@ -68,6 +68,7 @@ class Mupen64PlusEnv(gym.Env):
         self.mss_grabber = None
         self.episode_over = False
         self.pixel_array = None
+        self.np_random = np.random.RandomState()
         self._base_load_config()
         self._base_validate_config()
         self.frame_skip = self.config['FRAME_SKIP']
