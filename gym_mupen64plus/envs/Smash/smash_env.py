@@ -49,6 +49,7 @@ class SmashEnv(Mupen64PlusEnv):
         self._set_map(map)
 
         super(SmashEnv, self).__init__()
+        self._my_kills, self._their_kills = 0, 0
         self._my_damage_tracker = damage_tracker.DamageTracker(self.frame_skip, playernum=1)
         self._their_damage_tracker = damage_tracker.DamageTracker(self.frame_skip, playernum=2)
         self.action_space = spaces.MultiDiscrete([161,  # Joystick X
@@ -84,6 +85,7 @@ class SmashEnv(Mupen64PlusEnv):
     # Agressiveness hyperparam- start applying if they go too long without
     # either taking or giving damage.
     def _get_aggressiveness_penalty(self):
+        return 0.0
         frames_since_dmg = (self.step_count - self._last_dmg_step) * self.frame_skip
         # Apply if we've gone 4 seconds without any damage.
         if frames_since_dmg > 4 * FRAMES_PER_SECOND:
@@ -94,21 +96,21 @@ class SmashEnv(Mupen64PlusEnv):
     def _get_dmg_reward(self):
         self._my_damage_tracker.observe_damage(self.pixel_array)
         self._their_damage_tracker.observe_damage(self.pixel_array)
-        dmg_factor = 1.0
-        death_factor = 200.0
+        dmg_factor = 0.01
+        death_factor = 1.0
         reward = 0.0
         me_died, my_dmg_taken = (
             self._my_damage_tracker.get_death_and_delta_dmg_for_reward())
         they_died, their_dmg_taken = (
             self._their_damage_tracker.get_death_and_delta_dmg_for_reward())
-        if my_dmg_taken > 0:
-            reward -= my_dmg_taken * dmg_factor
         if their_dmg_taken > 0:
             reward += their_dmg_taken * dmg_factor
         if me_died:
             reward -= death_factor
+            self._their_kills += 1
         if they_died:
             reward += death_factor
+            self._my_kills += 1
         if (me_died or they_died or my_dmg_taken != 0 or their_dmg_taken != 0):
             self._last_dmg_step = self.step_count
         return reward
@@ -246,6 +248,11 @@ class SmashEnv(Mupen64PlusEnv):
         pass
 
     def _evaluate_end_state(self):
+        if self._my_kills > 2 or self._their_kills > 2:
+            if self._my_kills > 2:
+                print('TKO!')
+            self._my_kills, self._their_kills = 0, 0
+            return True
         return False
 
     def _load_config(self):
