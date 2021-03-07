@@ -77,8 +77,17 @@ class SmashEnv(Mupen64PlusEnv):
 
             # Make sure we don't skip frames while navigating the menus
             with self.controller_server.frame_skip_disabled():
-                # TODO: Possibly allow exiting an in-progress map?
-                pass
+                self._press_button(ControllerState.START_BUTTON)
+                # Resetting in Smash is the special button combo of A+B+Z+R
+                self._press_button([0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                self._wait(count=350, wait_for='Post-match screen')
+                self._press_button(ControllerState.START_BUTTON)
+                self._wait(count=200, wait_for='Character select')
+                # Keep the existing players/levels on character select
+                self._press_button(ControllerState.START_BUTTON)
+                self._wait(count=75, wait_for='Load Map Select')
+                self._press_button(ControllerState.A_BUTTON)
+                self._wait(count=450, wait_for='Load level')
         return super(SmashEnv, self).reset()
 
 
