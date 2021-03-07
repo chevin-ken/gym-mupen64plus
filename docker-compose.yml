@@ -11,7 +11,7 @@ services:
     volumes:
       - ./ray_results:/root/ray_results
     entrypoint:
-      'bash -c "ray start --head --dashboard-host 0.0.0.0 --port=6379 --num-cpus 0 --num-gpus 0 && tensorboard --logdir ~/ray_results --bind_all & python3 train.py --environment Mario-Kart-Discrete-Luigi-Raceway-v0 --workers 16 --gpus 1"'
+      'bash -c "ray start --head --dashboard-host 0.0.0.0 --port=6379 --num-cpus 0 --num-gpus 0 && tensorboard --logdir ~/ray_results --bind_all & python3 train.py --environment Smash-Discrete-mario-v0 --workers 16 --gpus 1"'
 
   agent:
     runtime: nvidia

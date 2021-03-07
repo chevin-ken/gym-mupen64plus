@@ -14,6 +14,7 @@ for character in characters:
         entry_point='gym_mupen64plus.envs.Smash:SmashEnv',
         kwargs={'my_character' : character},
         nondeterministic=True,
+        max_episode_steps=2500
     )
 
     # Discrete Action Space:
@@ -22,4 +23,5 @@ for character in characters:
         entry_point='gym_mupen64plus.envs.Smash:SmashDiscreteEnv',
         kwargs={'my_character' : character},
         nondeterministic=True,
+        max_episode_steps=2500
     )
