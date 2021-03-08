@@ -96,7 +96,7 @@ COPY ["./gym_mupen64plus/envs/Smash/smash.sra", "/root/.local/share/mupen64plus/
 # Install requirements & this package
 WORKDIR /src/gym-mupen64plus
 RUN pip3 install -e . \
-        torch \
+        torch!=1.8 \
         tensorboard \
         ray[rllib]
 

@@ -257,11 +257,6 @@ class SmashEnv(Mupen64PlusEnv):
         pass
 
     def _evaluate_end_state(self):
-        if self._my_kills > 2 or self._their_kills > 2:
-            if self._my_kills > 2:
-                print('TKO!')
-            self._my_kills, self._their_kills = 0, 0
-            return True
         return False
 
     def _load_config(self):
