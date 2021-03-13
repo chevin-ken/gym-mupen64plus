@@ -1,0 +1,20 @@
+{
+  "clip_param": 0.2,
+  "env": "mario_kart",
+  "framework": "torch",
+  "gamma": 0.99,
+  "lambda": 0.95,
+  "lr": 0.0003,
+  "model": {
+    "fcnet_hiddens": [
+      512,
+      512
+    ]
+  },
+  "num_envs_per_worker": 1,
+  "num_gpus": 1.0,
+  "num_sgd_iter": 10,
+  "num_workers": 16,
+  "sgd_minibatch_size": 256,
+  "vf_clip_param": 1000
+}
