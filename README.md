@@ -156,7 +156,9 @@ The following table shows progress on trained models for various games.
 | Level             | Status       | GIF               |
 |:------------------|:-------------|:------------------|
 | **Luigi-Raceway** | Satisfactory |![][luigi-raceway] |
+| **Moo Moo Farm**  | Satisfactory |![][moo-moo-farm]  |
 
 [luigi-raceway]: media/luigi-raceway-discrete.gif
+[moo-moo-farm]: media/moo-moo-farm-discrete.gif
 
 **Note:** The `Status` field indicates how well an agent is able to complete an environment. "Satisfactory" implies the agent is able to complete the environment with minimal issues, but could still use a fair amount of optimization. "Optimal" implies the agent is performing close to peak performance, though this does not necessarily mean a run is flawless.
