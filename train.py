@@ -38,14 +38,25 @@ def env_creator(env_name, config):
     return env
 
 
+def track_name(env):
+    env = env.strip('Mario-Kart-')
+    env = env.strip('Discrete-')
+    env = env.strip('-v0')
+    env = env.lower()
+    env = env.replace('-', '_')
+    env = 'mario_kart_' + env
+    return env
+
+
 def main():
     def env_creator_lambda(env_config):
         return env_creator(args.environment,
                            config)
 
     args = parse_args()
+    env_name = track_name(args.environment)
     config = {
-        'env': 'mario_kart',
+        'env': env_name,
         'framework': 'torch',
         'lr': 0.0003,
         'lambda': 0.95,
@@ -63,7 +74,7 @@ def main():
     }
     ray.init(address='head:6379', _redis_password='5241590000000000')
 
-    register_env('mario_kart', env_creator_lambda)
+    register_env(env_name, env_creator_lambda)
     time.sleep(5)
     tune.run('PPO',
              stop={'training_iteration': 1000000},
