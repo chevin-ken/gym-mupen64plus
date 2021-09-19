@@ -20,22 +20,17 @@ class MarioTennisEnv(Mupen64PlusEnv):
         self._episode_over = False
 
         super(MarioTennisEnv, self).__init__()
-        self.action_space = spaces.MultiDiscrete([[-128, 127],
-                                                  [-128, 127],
-                                                  [   0,   1],
-                                                  [   0,   1],
-                                                  [   0,   0],
-                                                  [   0,   1],
-                                                  [   0,   1],
-                                                  [   0,   1]])
+        self.action_space = spaces.Box(np.array([-80, -80, 0, 0, 0, 0, 0, 0]),
+                                       np.array([80, 80, 1, 1, 0, 1, 1, 1]),
+                                       dtype=np.int8)
 
-    def _step(self, action):
+    def step(self, action):
         # Append unneeded inputs
         num_missing = len(ControllerState.A_BUTTON) - len(action)
         full_action = action + [0] * num_missing
-        return super(MarioTennisEnv, self)._step(full_action)
+        return super(MarioTennisEnv, self).step(full_action)
 
-    def _reset(self):
+    def reset(self):
         if self.reset_count > 0:
             with self.controller_server.frame_skip_disabled():
                 if self._episode_over:
@@ -55,14 +50,14 @@ class MarioTennisEnv(Mupen64PlusEnv):
                     self._select_court()
                     self.score_parser.queue.clear()
                     self.score_parser._serving = True
-        return super(MarioTennisEnv, self)._reset()
+        return super(MarioTennisEnv, self).reset()
 
     def _get_reward(self):
         reward = self.score_parser.reward(self.pixel_array)
         if reward != 0.0:
-            print(reward)
-        #print(reward)
-        #return reward
+            # Every time the reward is non-zero indicates a point just finished.
+            # Hold input from the agents and skip the replay.
+            self._skip_post_point()
         self.counter_im += 1
         img = cv2.cvtColor(self.pixel_array[165:275, 145:495, :], cv2.COLOR_BGR2HSV)
         lower = np.array([85, 200, 220])
@@ -72,20 +67,26 @@ class MarioTennisEnv(Mupen64PlusEnv):
         lower = np.array([5, 5, 5])
         upper = np.array([255, 255, 255])
         img[mask != 0] = [255, 255, 255]
-        best = 0.0
-        best_key = None
+        #best = 0.0
+        #best_key = None
 
-        for key, image in self.score_parser._templates.items():
-            intersection = np.sum(np.logical_and(img, image))
-            union = np.sum(np.logical_or(img, image))
-            miou = intersection / float(union)
-            if miou > best and miou > 0.35:
-                best = miou
-                best_key = key
+        #for key, image in self.score_parser._templates.items():
+        #    intersection = np.sum(np.logical_and(img, image))
+        #    union = np.sum(np.logical_or(img, image))
+        #    miou = intersection / float(union)
+        #    if miou > best and miou > 0.35:
+        #        best = miou
+        #        best_key = key
         #if best == 0.0:
         #    return 1.0
         cv2.imwrite('%s.jpg' % self.counter_im, img)
         return reward
+
+    def _skip_post_point(self):
+        self._act(ControllerState.A_BUTTON)
+        self._wait(count=20, wait_for='Replay to start')
+        self._act(ControllerState.A_BUTTON)
+        self._wait(count=10, wait_for='Next point to start')
 
     def _evaluate_end_state(self):
         self._episode_over = True

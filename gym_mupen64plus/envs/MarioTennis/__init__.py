@@ -13,10 +13,6 @@ for character in characters:
         id='Mario-Tennis-%s-v0' % character,
         entry_point='gym_mupen64plus.envs.MarioTennis:MarioTennisEnv',
         kwargs={'player': character},
-        tags={
-            'mupen': True,
-            'wrapper_config.TimeLimit.max_episode_steps': 2147483647
-        },
         nondeterministic=True
     )
 
@@ -25,9 +21,5 @@ for character in characters:
         id='Mario-Tennis-Discrete-%s-v0' % character,
         entry_point='gym_mupen64plus.envs.MarioTennis:MarioTennisDiscreteEnv',
         kwargs={'player': character},
-        tags={
-            'mupen': True,
-            'wrapper_config.TimeLimit.max_episode_steps': 2147483647
-        },
         nondeterministic=True
     )

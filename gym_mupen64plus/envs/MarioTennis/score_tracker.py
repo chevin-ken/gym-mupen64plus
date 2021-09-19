@@ -53,6 +53,20 @@ class ScoreParser:
             'deuce': cv2.imread('/src/saved_images/deuce.jpg', -1),
             'adv-40': cv2.imread('/src/saved_images/adv_40.jpg', -1),
             #'40-adv': cv2.imread('/src/saved_images/40_adv.jpg', -1),
+            '1-0': cv2.imread('/src/saved_images/1_0.jpg', -1),
+            '2-0': cv2.imread('/src/saved_images/2_0.jpg', -1),
+            '2-1': cv2.imread('/src/saved_images/2_1.jpg', -1),
+            '3-0': cv2.imread('/src/saved_images/3_0.jpg', -1),
+            '3-1': cv2.imread('/src/saved_images/3_1.jpg', -1),
+            '3-2': cv2.imread('/src/saved_images/3_2.jpg', -1),
+            '3-3': cv2.imread('/src/saved_images/3_3.jpg', -1),
+            '4-0': cv2.imread('/src/saved_images/4_0.jpg', -1),
+            '4-3': cv2.imread('/src/saved_images/4_3.jpg', -1),
+            '4-4': cv2.imread('/src/saved_images/4_4.jpg', -1),
+            '5-0': cv2.imread('/src/saved_images/5_0.jpg', -1),
+            '5-4': cv2.imread('/src/saved_images/5_4.jpg', -1),
+            '6-0': cv2.imread('/src/saved_images/6_0.jpg', -1),
+            '6-4': cv2.imread('/src/saved_images/6_4.jpg', -1),
             'match-complete': cv2.imread('/src/saved_images/match_complete.jpg', -1),
             'game-mario': cv2.imread('/src/saved_images/game_mario.jpg', -1),
             'game-luigi': cv2.imread('/src/saved_images/game_luigi.jpg', -1)
@@ -136,16 +150,16 @@ class ScoreParser:
         old_server, old_returner = old_score.split('-')
 
         # The server won the point, and the agent is serving.
-        if old_server in ['6', 'adv'] and self._serving:
+        if old_server in ['6', 'adv', '40'] and self._serving:
             return 1.0
         # The returner won the point, and the agent is serving.
-        if old_returner in ['6', 'adv'] and self._serving:
+        if old_returner in ['6', 'adv', '40'] and self._serving:
             return -1.0
         # The server won the point, and the agent is not serving.
-        if old_server in ['6', 'adv'] and not self._serving:
+        if old_server in ['6', 'adv', '40'] and not self._serving:
             return -1.0
         # The returner won the point, and the agent is not serving.
-        if old_returner in ['6', 'adv'] and not self._serving:
+        if old_returner in ['6', 'adv', '40'] and not self._serving:
             return 1.0
 
     def _determine_winner(self, new_score, old_score):
@@ -154,8 +168,8 @@ class ScoreParser:
         if 'adv' in old_score:
             old_score = '0-0'
         if new_score == 'match-complete':
-            self.current_score = '0-0'
-            return self._determine_match_winner(new_score)
+            self._current_score = '0-0'
+            return self._determine_match_winner(old_score)
         if 'game' in old_score or 'match' in old_score:
             old_score = '0-0'
 
@@ -196,7 +210,7 @@ class ScoreParser:
                 self._toggle_server()
             else:
                 reward = self._determine_winner(best_fit, self.current_score)
-            self.current_score = best_fit
+            self._current_score = best_fit
         return reward
 
     @property
