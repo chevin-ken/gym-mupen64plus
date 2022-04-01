@@ -96,7 +96,7 @@ class Mupen64PlusEnv(gym.Env):
         # wxPython for screenshots. Untested after switching to mss.
         cprint('Calling mss.mss() with DISPLAY %s' % os.environ["DISPLAY"], 'red')
         self.mss_grabber = mss.mss()
-        time.sleep(2) # Give mss a couple seconds to initialize; also may not be necessary
+        time.sleep(10) # Give mss a couple seconds to initialize; also may not be necessary
 
         # Restore the DISPLAY env var
         os.environ["DISPLAY"] = initial_disp

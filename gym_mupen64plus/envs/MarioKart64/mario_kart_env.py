@@ -256,20 +256,23 @@ class MarioKartEnv(Mupen64PlusEnv):
     def _navigate_menu(self):
         self._wait(count=10, wait_for='Nintendo screen')
         self._press_button(ControllerState.A_BUTTON)
+        cprint("Passed Nintendo Screen")
 
         self._wait(count=68, wait_for='Mario Kart splash screen')
         self._press_button(ControllerState.A_BUTTON)
+        cprint("Passed Mario Kart Splash screen")
+        cprint("Navigating game select menu")
 
         self._wait(count=68, wait_for='Game Select screen')
         self._navigate_game_select()
 
-        self._wait(count=14, wait_for='Player Select screen')
+        self._wait(count=68, wait_for='Player Select screen')
         self._navigate_player_select()
 
-        self._wait(count=31, wait_for='Map Select screen')
+        self._wait(count=68, wait_for='Map Select screen')
         self._navigate_map_select()
 
-        self._wait(count=46, wait_for='race to load')
+        self._wait(count=68, wait_for='race to load')
 
         # Change HUD View twice to get to the one we want:
         self._cycle_hud_view(times=2)
@@ -280,11 +283,13 @@ class MarioKartEnv(Mupen64PlusEnv):
     def _navigate_game_select(self):
         # Select number of players (1 player highlighted by default)
         self._press_button(ControllerState.A_BUTTON)
-        self._wait(count=3, wait_for='animation')
+        self._wait(count=60, wait_for='animation')
 
+        print("Pressing down on joystick to get to time trials")
         # Select GrandPrix or TimeTrials (GrandPrix highlighted by default - down to switch to TimeTrials)
         self._press_button(ControllerState.JOYSTICK_DOWN)
-        self._wait(count=3, wait_for='animation')
+        self._wait(count=60, wait_for='animation')
+        print("Time trials now selected")
 
         # Select TimeTrials
         self._press_button(ControllerState.A_BUTTON)
