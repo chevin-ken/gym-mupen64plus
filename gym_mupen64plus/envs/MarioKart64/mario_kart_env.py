@@ -254,13 +254,14 @@ class MarioKartEnv(Mupen64PlusEnv):
         return self.end_race_pixel_color == IMAGE_HELPER.GetPixelColor(self.pixel_array, 203, 51)
 
     def _navigate_menu(self):
-        self._wait(count=10, wait_for='Nintendo screen')
+        self._wait(count=20, wait_for='Nintendo screen')
         self._press_button(ControllerState.A_BUTTON)
         cprint("Passed Nintendo Screen")
 
         self._wait(count=68, wait_for='Mario Kart splash screen')
         self._press_button(ControllerState.A_BUTTON)
         cprint("Passed Mario Kart Splash screen")
+        
         cprint("Navigating game select menu")
 
         self._wait(count=68, wait_for='Game Select screen')
