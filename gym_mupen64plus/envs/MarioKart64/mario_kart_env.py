@@ -325,7 +325,9 @@ class MarioKartEnv(Mupen64PlusEnv):
 
         # Select map choice
         self._press_button(ControllerState.JOYSTICK_DOWN, times=self.MAP_CHOICE)
+        self._wait(count=3, wait_for='animation')
         self._press_button(ControllerState.A_BUTTON)
+        self._wait(count=3, wait_for='animation')
 
         # Press OK
         self._press_button(ControllerState.A_BUTTON)
