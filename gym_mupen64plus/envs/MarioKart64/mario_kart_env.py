@@ -256,6 +256,7 @@ class MarioKartEnv(Mupen64PlusEnv):
     def _navigate_menu(self):
         # self._wait(count=10, wait_for='Nintendo screen')
         # self._press_button(ControllerState.A_BUTTON)
+        # cprint("Passed Nintendo Screen")
 
         self._wait(count=68, wait_for='Mario Kart splash screen')
         self._press_button(ControllerState.A_BUTTON)
