@@ -67,6 +67,7 @@ class Mupen64PlusEnv(gym.Env):
         self.running = True
         self.episode_over = False
         self.pixel_array = None
+        self.np_random = np.random.RandomState()
         self._base_load_config()
         self._base_validate_config()
         self.frame_skip = self.config['FRAME_SKIP']
@@ -81,7 +82,7 @@ class Mupen64PlusEnv(gym.Env):
         # If the EXTERNAL_EMULATOR environment variable is True, we are running the
         # emulator out-of-process (likely via docker/docker-compose). If not, we need
         # to start the emulator in-process here
-        external_emulator = os.environ.has_key("EXTERNAL_EMULATOR") and os.environ["EXTERNAL_EMULATOR"] == 'True'
+        external_emulator = "EXTERNAL_EMULATOR" in os.environ and os.environ["EXTERNAL_EMULATOR"] == 'True'
         if not external_emulator:
             self.xvfb_process, self.emulator_process = \
                 self._start_emulator(rom_name=self.config['ROM_NAME'],
@@ -95,7 +96,7 @@ class Mupen64PlusEnv(gym.Env):
         # wxPython for screenshots. Untested after switching to mss.
         cprint('Calling mss.mss() with DISPLAY %s' % os.environ["DISPLAY"], 'red')
         self.mss_grabber = mss.mss()
-        time.sleep(2) # Give mss a couple seconds to initialize; also may not be necessary
+        time.sleep(10) # Give mss a couple seconds to initialize; also may not be necessary
 
         # Restore the DISPLAY env var
         os.environ["DISPLAY"] = initial_disp
@@ -108,23 +109,13 @@ class Mupen64PlusEnv(gym.Env):
         self.observation_space = \
             spaces.Box(low=0, high=255, shape=(SCR_H, SCR_W, SCR_D))
 
-        self.action_space = spaces.MultiDiscrete([[-80, 80], # Joystick X-axis
-                                                  [-80, 80], # Joystick Y-axis
-                                                  [  0,  1], # A Button
-                                                  [  0,  1], # B Button
-                                                  [  0,  1], # RB Button
-                                                  [  0,  1], # LB Button
-                                                  [  0,  1], # Z Button
-                                                  [  0,  1], # C Right Button
-                                                  [  0,  1], # C Left Button
-                                                  [  0,  1], # C Down Button
-                                                  [  0,  1], # C Up Button
-                                                  [  0,  1], # D-Pad Right Button
-                                                  [  0,  1], # D-Pad Left Button
-                                                  [  0,  1], # D-Pad Down Button
-                                                  [  0,  1], # D-Pad Up Button
-                                                  [  0,  1], # Start Button
-                                                 ])
+        # Actions are as follows:
+        # [Joystick X, Joystick Y, A, B, RB, LB, Z, C Right, C Left, C Down, C UP,
+        #  D-Pad Right, D-Pad Left, D-Pad Down, D-Pad Up, Start]
+        self.action_space = spaces.Box(np.array([-80, -80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+                                       np.array([80, 80, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]),
+                                       shape=(16,),
+                                       dtype=np.uint8)
 
     def _base_load_config(self):
         self.config = yaml.safe_load(open(os.path.join(os.path.dirname(inspect.stack()[0][1]), "config.yml")))
@@ -145,10 +136,10 @@ class Mupen64PlusEnv(gym.Env):
     def _validate_config(self):
         return
 
-    def _step(self, action):
+    def step(self, action):
         #cprint('Step %i: %s' % (self.step_count, action), 'green')
         self._act(action)
-        obs = self._observe()
+        obs = self.observe()
         self.episode_over = self._evaluate_end_state()
         reward = self._get_reward()
 
@@ -167,7 +158,7 @@ class Mupen64PlusEnv(gym.Env):
             self._act(button) # Press
             self._act(ControllerState.NO_OP) # and release
 
-    def _observe(self):
+    def observe(self):
         #cprint('Observe called!', 'yellow')
 
         if self.config['USE_XVFB']:
@@ -204,14 +195,14 @@ class Mupen64PlusEnv(gym.Env):
         return False
 
     @abc.abstractmethod
-    def _reset(self):
+    def reset(self):
         cprint('Reset called!', 'yellow')
         self.reset_count += 1
 
         self.step_count = 0
-        return self._observe()
+        return self.observe()
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if hasattr(self, 'viewer') and self.viewer is not None:
                 self.viewer.close()
@@ -226,7 +217,7 @@ class Mupen64PlusEnv(gym.Env):
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
 
-    def _close(self):
+    def close(self):
         cprint('Close called!', 'yellow')
         self.running = False
         self._kill_emulator()

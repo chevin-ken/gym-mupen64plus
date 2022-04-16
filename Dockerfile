@@ -1,5 +1,5 @@
 ################################################################
-FROM ubuntu:xenial-20170915 AS base
+FROM ubuntu:xenial-20201030 AS base
 
 
 # Setup environment variables in a single layer
@@ -39,22 +39,41 @@ RUN git clone https://github.com/mupen64plus/mupen64plus-core && \
 ################################################################
 FROM base
 
-
 # Update package cache and install dependencies
 RUN apt-get update && \
     apt-get install -y \
-        python python-pip python-setuptools python-dev \
+        libjson-c2 \
         wget \
         xvfb libxv1 x11vnc \
         imagemagick \
         mupen64plus \
         nano \
         ffmpeg \
-        libjson-c2
+        build-essential \
+        zlib1g-dev \
+        libbz2-dev \
+        libncurses5-dev \
+        libgdbm-dev \
+        libnss3-dev \
+        libssl-dev \
+        libreadline-dev \
+        libffi-dev \
+        liblzma-dev \
+        lzma \
+        rsync
 
-# Upgrade pip (pip 21.0 dropped support for Python 2.7 in January 2021 - https://stackoverflow.com/a/65896996/9526448)
-# TODO: Python3 upgrade - https://github.com/bzier/gym-mupen64plus/issues/81
-RUN pip install --upgrade "pip < 21.0"
+# Install Python 3.7.9
+RUN wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz && \
+    tar -xvf Python-3.7.9.tgz && \
+    cd Python-3.7.9 && \
+    ./configure --enable-optimizations && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf Python*
+
+# Upgrade pip
+RUN pip3 install --upgrade pip
 
 # Install VirtualGL (provides vglrun to allow us to run the emulator in XVFB)
 # (Check for new releases here: https://github.com/VirtualGL/virtualgl/releases)
@@ -76,14 +95,21 @@ RUN pip install \
 COPY --from=buildstuff /usr/local/lib/mupen64plus/mupen64plus-input-bot.so /usr/local/lib/mupen64plus/
 
 # Copy the gym environment (current directory)
-COPY . /src/gym-mupen64plus
+COPY gym_mupen64plus /src/gym-mupen64plus/gym_mupen64plus
+COPY setup.py /src/gym-mupen64plus
+
 # Copy the Super Smash Bros. save file to the mupen64plus save directory
 # mupen64plus expects a specific filename, hence the awkward syntax and name
 COPY [ "./gym_mupen64plus/envs/Smash/smash.sra", "/root/.local/share/mupen64plus/save/Super Smash Bros. (U) [!].sra" ]
 
 # Install requirements & this package
 WORKDIR /src/gym-mupen64plus
-RUN pip install -e .
+RUN pip3 install -e . \
+        torch \
+        tensorboard \
+        ray[rllib]
+
+COPY train.py /src/train.py
 
 # Declare ROMs as a volume for mounting a host path outside the container
 VOLUME /src/gym-mupen64plus/gym_mupen64plus/ROMs/

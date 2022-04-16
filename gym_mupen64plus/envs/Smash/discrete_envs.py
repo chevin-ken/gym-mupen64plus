@@ -18,7 +18,9 @@ def _create_action_map():
         ("ZBUTTON",   [0, 0, 0, 0, 1, 0]),
         ("CBUTTON",   [0, 0, 0, 0, 0, 1]),
     ]
-    actions = []
+    actions = [
+        ("NOOP", [0, 0, 0, 0, 0, 0, 0, 0])
+    ]
     for xmag in joystick_magnitudes:
         for ymag in joystick_magnitudes:
             for button in allowed_buttons:
@@ -59,8 +61,11 @@ class SmashDiscreteEnv(SmashEnv):
         # This needs to happen after the parent class init to effectively override the action space
         self.action_space = DiscreteActions.get_action_space()
 
-    def _step(self, action):
+    def step(self, action):
         # Interpret the action choice and get the actual controller state for this step
         controls = DiscreteActions.get_controls_from_action(action)
 
-        return super(SmashDiscreteEnv, self)._step(controls)
+        return super(SmashDiscreteEnv, self).step(controls)
+
+    def get_action_meanings(self):
+        return [key for key, mapping in DiscreteActions.ACTION_MAP]
