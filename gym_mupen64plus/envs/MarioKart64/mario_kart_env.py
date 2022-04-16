@@ -310,8 +310,8 @@ class MarioKartEnv(Mupen64PlusEnv):
         self._press_button(ControllerState.A_BUTTON)
 
     def _navigate_map_select(self):
-        print('Map series: ' + str(self.MAP_SERIES))
-        print('Map choice: ' + str(self.MAP_CHOICE))
+        print('Map series testing: ' + str(self.MAP_SERIES))
+        print('Map choice testing: ' + str(self.MAP_CHOICE))
 
         # Map series selection is remembered each time, so ensure left-most is selected
         self._press_button(ControllerState.JOYSTICK_LEFT, times=3)
@@ -322,6 +322,7 @@ class MarioKartEnv(Mupen64PlusEnv):
 
         # Map choice selection is remembered each time, so ensure top-most is selected
         self._press_button(ControllerState.JOYSTICK_UP, times=3)
+        self._wait(count=3, wait_for='animation')
 
         # Select map choice
         self._press_button(ControllerState.JOYSTICK_DOWN, times=self.MAP_CHOICE)
